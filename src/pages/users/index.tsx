@@ -2,7 +2,7 @@ import { React, useState } from 'react';
 import { Table, Tag, Space } from 'antd';
 import UserModel from './components/UserModel';
 import { connect } from 'umi';
-const index = ({ users }) => {
+const index = ({ users, dispatch }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [record, setRecord] = useState(undefined);
   const columns = [
@@ -61,13 +61,29 @@ const index = ({ users }) => {
   const closeHandler = () => {
     setModalVisible(false);
   };
+  const onFinish = (values: any) => {
+    const id = record.id;
+    dispatch({
+      type: 'users/edit',
+      payload: {
+        id,
+        values,
+      },
+    });
+  };
   return (
     <div>
-      <Table columns={columns} dataSource={users.data} className="pageList" />
+      <Table
+        columns={columns}
+        dataSource={users.data}
+        className="pageList"
+        rowKey="id"
+      />
       <UserModel
         visible={modalVisible}
         closeHandler={closeHandler}
         record={record}
+        onFinish={onFinish}
       ></UserModel>
     </div>
   );
