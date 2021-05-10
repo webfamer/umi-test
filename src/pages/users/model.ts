@@ -33,7 +33,9 @@ const UserModel: UserModelType = {
     },
     *edit({ payload: { id, values } }, { put, call }) {
       const data = yield call(editRecord, { id, values });
-      console.log(data);
+      yield put({
+        type: 'getRemote',
+      });
     },
   },
   subscriptions: {

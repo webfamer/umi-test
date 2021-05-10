@@ -70,6 +70,7 @@ const index = ({ users, dispatch }) => {
         values,
       },
     });
+    setModalVisible(false);
   };
   return (
     <div>

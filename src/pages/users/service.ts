@@ -1,4 +1,5 @@
 import { request } from 'umi';
+import { message } from 'antd';
 export const getRemoteList = async () => {
   return request('/api/users', {
     method: 'get',
@@ -13,9 +14,9 @@ export const editRecord = async ({ id, values }) => {
     data: values,
   })
     .then((res) => {
-      console.log('success');
+      message.success('edit success');
     })
     .catch((res) => {
-      console.log('Faild');
+      message.error('edit Faild');
     });
 };
