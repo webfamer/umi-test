@@ -20,3 +20,14 @@ export const editRecord = async ({ id, values }) => {
       message.error('edit Faild');
     });
 };
+export const deleteRecord = async ({ id }) => {
+  return request(`/api/users/${id}`, {
+    method: 'delete',
+  })
+    .then((res) => {
+      message.success('delete success');
+    })
+    .catch((res) => {
+      message.error('delete Faild');
+    });
+};

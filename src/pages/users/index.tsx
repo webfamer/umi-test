@@ -1,10 +1,21 @@
 import { React, useState } from 'react';
-import { Table, Tag, Space } from 'antd';
+import { Table, Tag, Space, Popconfirm } from 'antd';
 import UserModel from './components/UserModel';
 import { connect } from 'umi';
 const index = ({ users, dispatch }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [record, setRecord] = useState(undefined);
+  const confirm = (id) => {
+    dispatch({
+      type: 'users/delete',
+      payload: { id },
+    });
+    console.log('Click on Yes');
+  };
+  const cancel = (e) => {
+    console.log(e);
+    console.log('Click on No');
+  };
   const columns = [
     {
       title: 'ID',
@@ -48,7 +59,18 @@ const index = ({ users, dispatch }) => {
           >
             Edit
           </a>
-          &nbsp;&nbsp;<a>Delete</a>
+          &nbsp;&nbsp;
+          <Popconfirm
+            title="Are you sure to delete this task?"
+            onConfirm={() => {
+              confirm(record.id);
+            }}
+            onCancel={cancel}
+            okText="Yes"
+            cancelText="No"
+          >
+            <a>Delete</a>
+          </Popconfirm>
         </span>
       ),
     },
