@@ -1,13 +1,16 @@
 import { Reducer, Effect, Subscription } from 'umi';
-import { getRemoteList, editRecord, deleteRecord } from './service';
+import { getRemoteList, editRecord, deleteRecord, addRecord } from './service';
+import { message } from 'antd';
+import {UserState} from './data'
 interface UserModelType {
-  namespace: String;
-  state: {};
+  namespace: string;
+  state: UserState;
   reducers: {
-    getList: Reducer;
+    getList: Reducer<UserState>;
   };
   effects: {
     getRemote: Effect;
+    add: Effect;
     edit: Effect;
     delete: Effect;
   };
@@ -18,7 +21,14 @@ interface UserModelType {
 
 const UserModel: UserModelType = {
   namespace: 'users',
-  state: {},
+  state: {
+    data: [],
+    meta: {
+      total: 0,
+      per_page: 5,
+      page: 1
+    }
+  },
   reducers: {
     getList(state, { payload }) {
       return payload;
@@ -27,23 +37,46 @@ const UserModel: UserModelType = {
   effects: {
     *getRemote(action, { put, call }) {
       const data = yield call(getRemoteList);
-      yield put({
-        type: 'getList',
-        payload: data,
-      });
+      if (data) {
+        yield put({
+          type: 'getList',
+          payload: data,
+        });
+      }
+    },
+    *add({ payload: { id, values } }, { put, call }) {
+      const data = yield call(addRecord, { values });
+      if (data) {
+        message.success('Add success');
+        yield put({
+          type: 'getRemote',
+        });
+      } else {
+        message.error('Add error');
+      }
     },
     *edit({ payload: { id, values } }, { put, call }) {
       const data = yield call(editRecord, { id, values });
-      yield put({
-        type: 'getRemote',
-      });
+      if (data) {
+        message.success('Edit success');
+        yield put({
+          type: 'getRemote',
+        });
+      } else {
+        message.error('Edit error');
+      }
     },
     *delete({ payload: { id } }, { put, call }) {
       console.log(id);
       const data = yield call(deleteRecord, { id });
-      yield put({
-        type: 'getRemote',
-      });
+      if (data) {
+        message.success('Delete success');
+        yield put({
+          type: 'getRemote',
+        });
+      } else {
+        message.error('Delete error');
+      }
     },
   },
   subscriptions: {

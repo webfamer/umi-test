@@ -1,11 +1,23 @@
-import { React, useEffect } from 'react';
+import { React, useEffect, FC } from 'react';
 import { Modal, Button, Form, Input } from 'antd';
+import {SingleUserType} from '../data'
+interface UserModelProps {
+  visible:boolean;
+  record:SingleUserType|undefined;
+  closeHandler:() => void;
+  onFinish:(values: any)=>void;
+}
 
-const UserModel = (props) => {
+const UserModel:FC<UserModelProps> = (props) => {
   const [form] = Form.useForm();
   const { visible, record, closeHandler, onFinish } = props;
   useEffect(() => {
-    form.setFieldsValue(record);
+    if (record === undefined) {
+      form.resetFields();
+    } else {
+      form.setFieldsValue(record);
+
+    }
   }, [visible]);
   const onOk = () => {
     form.submit();
