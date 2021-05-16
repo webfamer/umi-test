@@ -1,11 +1,17 @@
-import { React, useState } from 'react';
-import { Table, Tag, Space, Popconfirm } from 'antd';
+import { React, useState,FC } from 'react';
+import { Table, Tag, Space, Popconfirm,Button } from 'antd';
 import UserModel from './components/UserModel';
-import { connect } from 'umi';
-const index = ({ users, dispatch }) => {
+import { connect,Dispatch,Loading } from 'umi';
+import {UserState,SingleUserType} from './data'
+interface UserPageProps{
+  users: UserState;
+  dispatch:Dispatch;
+  userListLoading:boolean;
+}
+const UserListPage:FC<UserPageProps> = ({ users, dispatch,userListLoading }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [record, setRecord] = useState(undefined);
-  const confirm = (id) => {
+  const [record, setRecord] = useState<SingleUserType | undefined>(undefined);
+  const confirm = (id:number) => {
     dispatch({
       type: 'users/delete',
       payload: { id },
@@ -26,6 +32,7 @@ const index = ({ users, dispatch }) => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      render: (text:string) =><a>{text}</a>
     },
     {
       title: 'email',
@@ -50,7 +57,7 @@ const index = ({ users, dispatch }) => {
     {
       title: 'Action',
       key: 'action',
-      render: (text, record) => (
+      render: (text:String, record:SingleUserType) => (
         <span>
           <a
             onClick={() => {
@@ -76,7 +83,7 @@ const index = ({ users, dispatch }) => {
     },
   ];
 
-  const editHandler = (record) => {
+  const editHandler = (record:SingleUserType) => {
     setModalVisible(true);
     setRecord(record);
   };
@@ -84,23 +91,42 @@ const index = ({ users, dispatch }) => {
     setModalVisible(false);
   };
   const onFinish = (values: any) => {
-    const id = record.id;
-    dispatch({
-      type: 'users/edit',
-      payload: {
-        id,
-        values,
-      },
-    });
+    let id = 0;
+    if(record){
+      id = record.id;
+    }
+    if(id){
+      dispatch({
+        type: 'users/edit',
+        payload: {
+          id,
+          values,
+        },
+      });
+    }else{
+      dispatch({
+        type: 'users/add',
+        payload: {
+          values,
+        },
+      });
+    }
     setModalVisible(false);
   };
+  const addHandler=()=>{
+    setRecord(undefined);
+    setModalVisible(true);
+  }
   return (
-    <div>
+    <div 
+    className="pageList"
+    >
+      <Button type="primary" onClick={addHandler}>Add</Button>
       <Table
         columns={columns}
         dataSource={users.data}
-        className="pageList"
         rowKey="id"
+        loading={userListLoading}
       />
       <UserModel
         visible={modalVisible}
@@ -112,7 +138,10 @@ const index = ({ users, dispatch }) => {
   );
 };
 
-const mapStateToProps = ({ users }) => {
-  return { users };
+const mapStateToProps = ({ users,loading }:{ users:UserState,loading:Loading }) => {
+  return { 
+    users,
+    userListLoading: loading.models.users
+  };
 };
-export default connect(mapStateToProps)(index);
+export default connect(mapStateToProps)(UserListPage);
